@@ -163,5 +163,5 @@ for epoch in range(num_epochs):
         # Train G
         g_error = train_generator(g_optimizer, fake_data)
 
-    print("Generator Error: {}\nDiscriminator Error: {}\n-----------------------------".format(g_error, d_error))
+    print("Generator Error: {}\nDiscriminator Error: {}\n------------------------------------------------------------------".format(g_error, d_error))
 

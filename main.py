@@ -145,7 +145,7 @@ def train_generator(optimizer, fake_data):
 
 num_epochs = 200
 for epoch in range(num_epochs):
-    print("Epoch {} running".format(epoch+1))
+    print("Epoch {} Running...".format(epoch+1))
 
     for real_batch in tqdm(data_loader):
         N = real_batch.size(0)
@@ -163,5 +163,5 @@ for epoch in range(num_epochs):
         # Train G
         g_error = train_generator(g_optimizer, fake_data)
 
-    print("Epoch: {} \n Generator Error: {} \n Discriminator Error: {} \n -----------------------------".format(epoch+1, g_error, d_error))
+    print("Generator Error: {}\nDiscriminator Error: {}\n-----------------------------".format(g_error, d_error))
 

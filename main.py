@@ -9,9 +9,16 @@ from torch.distributions.normal import Normal
 
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
 
-X_train, y_train, X_test, y_test = torch.from_numpy(X_train).float(), torch.from_numpy(y_train).float(), torch.from_numpy(X_test).float(), torch.from_numpy(y_test).float()
+X_train, y_train = torch.from_numpy(X_train).float(), torch.from_numpy(y_train).float()
+X_test, y_test = torch.from_numpy(X_test).float(), torch.from_numpy(y_test).float()
 
-# batch_size = 128
+
+X_train, X_test = X_train.view(60000,1,28,28), X_test.view(10000,1,28,28)
+batch_size = 128
+
+data_loader = DataLoader(X_train, batch_size=batch_size, shuffle=True)
+num_batches = len(data_loader)
+
 
 class Generator(nn.Module):
 

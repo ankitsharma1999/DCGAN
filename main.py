@@ -7,12 +7,13 @@ from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 from torch.distributions.normal import Normal
 
-(X_train, y_train), (X_test, y_test) = mnist.load_data()
+(X_train, _), (_, _) = mnist.load_data()
+
+X_train = (X_train-127.5)/127.5  # Normalizing values between [-1,1]
 
 X_train = torch.from_numpy(X_train).float()
-X_test = torch.from_numpy(X_test).float()
 
-X_train, X_test = X_train.view(60000,1,28,28), X_test.view(10000,1,28,28)
+X_train = X_train.view(60000,1,28,28)
 
 batch_size = 120
 

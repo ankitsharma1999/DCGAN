@@ -11,6 +11,7 @@ from torch.distributions.normal import Normal
 
 X_train, y_train, X_test, y_test = torch.from_numpy(X_train).float(), torch.from_numpy(y_train).float(), torch.from_numpy(X_test).float(), torch.from_numpy(y_test).float()
 
+# batch_size = 128
 
 class Generator(nn.Module):
 
@@ -55,3 +56,41 @@ class Generator(nn.Module):
 
         return x
 
+class Discriminator(nn.Module):
+
+    def __init__(self, batch_size):
+
+        super(Discriminator, self).__init__()
+
+        self.batch_size = batch_size
+
+        self.conv_1 = nn.Conv2d(1,64, kernel_size=2, stride=2)
+        self.a_1 = nn.LeakyReLU(0.2)
+        self.dp_1 = nn.Dropout2d(0.3)
+
+        self.conv_2 = nn.Conv2d(64, 128, kernel_size=2, stride=2)
+        self.a_2 = nn.LeakyReLU(0.2)
+        self.dp_2 = nn.Dropout2d(0.3)
+
+        self.lin = nn.Linear(128*7*7, 1)
+        self.op = nn.Sigmoid()
+
+    def forward(self, x):
+
+        self.lin.weight.data.normal_(0,0.02)
+        self.conv_1.weight.data.normal_(0,0.02)
+        self.conv_2.weight.data.normal_(0,0.02)
+
+        x = self.conv_1(x)
+        x = self.a_1(x)
+        x = self.dp_1(x)
+
+        x = self.conv_2(x)
+        x = self.a_2(x)
+        x = self.dp_2(x)
+
+        x = x.view(self.batch_size, 128*7*7)
+
+        x = self.lin(x)
+        x = self.op(x)
+        return x

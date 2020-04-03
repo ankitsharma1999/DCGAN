@@ -14,7 +14,7 @@ X_test = torch.from_numpy(X_test).float()
 
 X_train, X_test = X_train.view(60000,1,28,28), X_test.view(10000,1,28,28)
 
-batch_size = 128
+batch_size = 120
 
 data_loader = DataLoader(X_train, batch_size=batch_size, shuffle=True)
 num_batches = len(data_loader)
@@ -22,13 +22,12 @@ num_batches = len(data_loader)
 
 class Generator(nn.Module):
 
-    def __init__(self, batch_size):
+    def __init__(self):
 
         super(Generator, self).__init__()
 
         num_ip = 100
         
-        self.batch_size = batch_size
 
         self.ip = nn.Linear(num_ip, 7*7*256)
         self.bn_1 = nn.BatchNorm1d(7*7*256, affine=False)
@@ -52,7 +51,7 @@ class Generator(nn.Module):
         x = self.bn_1(x)
         x = self.a_1(x)
 
-        x = x.view(self.batch_size,256,7,7)
+        x = x.view(120,256,7,7)
 
         x = self.conv_1(x)
         x = self.bn_2(x)
@@ -65,11 +64,10 @@ class Generator(nn.Module):
 
 class Discriminator(nn.Module):
 
-    def __init__(self, batch_size):
+    def __init__(self):
 
         super(Discriminator, self).__init__()
 
-        self.batch_size = batch_size
 
         self.conv_1 = nn.Conv2d(1,64, kernel_size=2, stride=2)
         self.a_1 = nn.LeakyReLU(0.2)
@@ -96,7 +94,7 @@ class Discriminator(nn.Module):
         x = self.a_2(x)
         x = self.dp_2(x)
 
-        x = x.view(self.batch_size, 128*7*7)
+        x = x.view(120, 128*7*7)
 
         x = self.lin(x)
         x = self.op(x)

@@ -1,11 +1,11 @@
 import torch
+from tqdm import tqdm
 import torch.nn as nn
 import torch.functional as F
 from keras.datasets import mnist
 from torch import optim
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
-from torch.distributions.normal import Normal
 
 (X_train, _), (_, _) = mnist.load_data()
 
@@ -100,3 +100,68 @@ class Discriminator(nn.Module):
         x = self.lin(x)
         x = self.op(x)
         return x
+
+generator = Generator()
+discriminator = Discriminator()
+
+d_optimizer = optim.Adam(discriminator.parameters(), lr=0.0002)
+g_optimizer = optim.Adam(generator.parameters(), lr=0.0002)
+
+loss = nn.BCELoss()
+
+def noise(size):
+    n = torch.randn(size, 100, requires_grad=True)
+    return n
+
+def zeros_target(size):
+    n = torch.zeros(size,1)
+    return n
+
+def ones_target(size):
+    n = torch.ones(size,1)
+    return n
+
+def train_discriminator(optimizer, real_data, fake_data):
+    N = real_data.size(0)
+    optimizer.zero_grad()
+    prediction_real = discriminator(real_data)
+    error_real = loss(prediction_real, ones_target(N))
+    error_real.backward()
+    prediction_fake = discriminator(fake_data)
+    error_fake = loss(prediction_fake, zeros_target(N))
+    error_fake.backward()
+    optimizer.step()
+    return error_real + error_fake, prediction_real, prediction_fake
+
+def train_generator(optimizer, fake_data):
+    N = fake_data.size(0)
+    optimizer.zero_grad()
+    prediction = discriminator(fake_data)
+    error = loss(prediction, ones_target(N))
+    error.backward()
+    optimizer.step()
+    return error
+
+
+num_epochs = 200
+for epoch in range(num_epochs):
+    print("Epoch {} running".format(epoch+1))
+
+    for real_batch in tqdm(data_loader):
+        N = real_batch.size(0)
+        # 1. Train Discriminator
+        real_data = real_batch
+        # Generate fake data and detach 
+        # (so gradients are not calculated for generator)
+        fake_data = generator(noise(N)).detach()
+        # Train D
+        d_error, d_pred_real, d_pred_fake = train_discriminator(d_optimizer, real_data, fake_data)
+
+        # 2. Train Generator
+        # Generate fake data
+        fake_data = generator(noise(N)).detach()
+        # Train G
+        g_error = train_generator(g_optimizer, fake_data)
+
+    print("Epoch: {} \n Generator Error: {} \n Discriminator Error: {} \n -----------------------------".format(epoch+1, g_error, d_error))
+
